@@ -297,6 +297,7 @@ def copula_mass(C_func, u, v, eps=1e-12):
     return p
 
 
+# ------------------ PQD - PH ---------------------
 def positiveconv_pbox(a, b, op=operator.add):
     """positive dependence (PQD) convolution of two pboxes
 
@@ -308,7 +309,6 @@ def positiveconv_pbox(a, b, op=operator.add):
     from .intervals import Interval
     from .pbox_abc import Staircase
     from pyuncertainnumber import envelope as env
-    import math
 
     # positive (PQD) dependence
     assert a.steps == b.steps, "Pboxes must have the same number of steps"
@@ -320,24 +320,24 @@ def positiveconv_pbox(a, b, op=operator.add):
         infimum = np.inf
         for j in range(i, n):
             if op == operator.add:
-                here = a.left[j] + b.left[int(n * i / (j + 1))]
+                here = a.right[j] + b.right[int(n*(i+1)/(j+1)-1)]
             elif op == operator.mul:
-                here = a.left[j] * b.left[int(n * i / (j + 1))]
+                here = a.right[j] * b.right[int(n*(i+1)/(j+1)-1)]
             elif op == operator.pow:
-                here = a.left[j] ** b.left[int(n * i / (j + 1))]
+                here = a.right[j] ** b.right[int(n*(i+1)/(j+1)-1)]
             if here < infimum:
                 infimum = here
         cd[i] = infimum
 
         supremum = -np.inf
         for j in range(i + 1):
-            kk = math.floor(1 + n * ((i) / n - j / n) / (1 - j / n)) - 1
+            kk = int(1 + n * ((i) / n - j / n) / (1 - j / n)) - 1
             if op == operator.add:
-                here = a.right[j] + b.right[kk]
+                here = a.left[j] + b.left[kk]
             elif op == operator.mul:
-                here = a.right[j] * b.right[kk]
+                here = a.left[j] * b.left[kk]
             elif op == operator.pow:
-                here = a.right[j] ** b.right[kk]
+                here = a.left[j] ** b.left[kk]
             if here > supremum:
                 supremum = here
         cu[i] = supremum
